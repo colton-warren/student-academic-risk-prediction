@@ -26,7 +26,7 @@
                     <entry key="connected_fs" type="xboolean" value="true"/>
                 </config>
                 <entry key="create_missing_folders" type="xboolean" value="false"/>
-                <entry key="if_path_exists" type="xstring" value="fail"/>
+                <entry key="if_path_exists" type="xstring" value="overwrite"/>
             </config>
             <entry key="column_delimiter" type="xstring" value=","/>
             <entry key="row_delimiter" type="xstring" isnull="true" value=""/>
@@ -83,6 +83,6 @@
     <config key="ports"/>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" value="d93b6ab1-064f-4336-b153-63c083ebcabb"/>
+        <entry key="file_store_id" type="xstring" value="69479b8f-4e3c-4227-ac41-602152d7d100"/>
     </config>
 </config>
