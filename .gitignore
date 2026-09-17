@@ -1,3 +1,12 @@
+# KNIME temporary metadata and cache
+.metadata/
+# Ignore temporary tracking and cache folders
+mlruns/
+.dvc/cache/
+.dvc/tmp/
+__pycache__/
+*.pyc
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -216,3 +225,21 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# KNIME temporary files 
+.metadata/
+knime.log
+
+# Python & Environment caches
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# ML & DataOps tracking caches
+mlruns/
+.dvc/cache/
+.dvc/tmp/
+
