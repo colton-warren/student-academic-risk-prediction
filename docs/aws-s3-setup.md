@@ -119,8 +119,11 @@ public.
 ```bash
 git check-ignore -v .dvc/config.local   # should print a .gitignore line
 git status --short                      # .dvc/config.local must NOT appear
-grep -ri "AKIA" .dvc/config             # must print nothing
+git grep -i "AKIA" -- .dvc/config       # must print nothing
 ```
+
+`git grep` is used rather than plain `grep` because it ships with Git on every
+platform, including Windows PowerShell and Command Prompt.
 
 ## If a key leaks
 

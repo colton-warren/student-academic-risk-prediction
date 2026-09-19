@@ -6,24 +6,59 @@ Code, parameters and metrics live in **Git**. Data, models and KNIME node
 caches live in **DVC**, which keeps the big files out of Git and shares them
 through a single remote.
 
+## Before you start
+
+Install these first. The versions matter less than having them at all, except
+where noted.
+
+| | Why | Notes |
+|---|---|---|
+| **Git** | Everything else assumes it | Windows: install *Git for Windows*, which also gives you Git Bash |
+| **Python 3.11 or newer** | Runs the pipeline | On Windows, tick **"Add Python to PATH"** in the installer. Getting this wrong is the most common setup failure |
+| **KNIME Analytics Platform** | Data preparation and modelling | Only needed if you are working on the workflow |
+
+You also need two things from a teammate:
+
+1. **Push access to the GitHub repo** — ask Colton, who owns it. You can read it
+   without access, but not push.
+2. **Your own AWS access key pair** — ask Paul. Everyone gets their own; they
+   are never shared. Without it `dvc pull` cannot fetch any data.
+
 ## One-time setup
+
+Run these once, in the folder where you keep projects.
+
+**macOS / Linux**
 
 ```bash
 git clone https://github.com/colton-warren/student-academic-risk-prediction.git
 cd student-academic-risk-prediction
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 git config core.hooksPath .githooks
 ```
 
-That last line turns on a pre-commit hook that refuses to commit AWS keys.
-Git does not share hooks automatically, so **everyone has to run it in their
-own clone** -- it is one command and it is the thing standing between a typo
-and a leaked key on a public repo.
+**Windows** (PowerShell or Command Prompt)
 
-Then add your own AWS keys for the DVC remote. Ask whoever set up the bucket
-for your personal access key pair -- everyone gets their own, they are not
-shared:
+```
+git clone https://github.com/colton-warren/student-academic-risk-prediction.git
+cd student-academic-risk-prediction
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+git config core.hooksPath .githooks
+```
+
+If you use **Git Bash** on Windows, the activate line is
+`source .venv/Scripts/activate` instead.
+
+That last command turns on a pre-commit hook that refuses to commit AWS keys.
+Git does not share hooks automatically, so **everyone has to run it in their own
+clone**. It is one command and it is the thing standing between a typo and a
+leaked key on a public repo.
+
+### Add your AWS keys
 
 ```bash
 dvc remote modify --local storage access_key_id <your-access-key-id>
@@ -32,29 +67,62 @@ dvc remote modify --local storage secret_access_key <your-secret-access-key>
 
 `--local` is not optional. It writes to `.dvc/config.local`, which is
 gitignored; without it your keys land in `.dvc/config`, which is committed to a
-**public** repo. Check with `git status --short` -- `.dvc/config.local` should
-never appear there.
+**public** repo. If you do commit a key, say so immediately — it has to be
+revoked in the AWS console, and deleting the line does not undo it.
 
-If you do commit a key, say so immediately. It has to be revoked in the AWS
-console; deleting the line does not undo it. See
-[docs/aws-s3-setup.md](docs/aws-s3-setup.md), which also covers creating the
-bucket and IAM users in the first place.
+### Check it worked
+
+```bash
+dvc pull
+dvc status
+```
+
+You are set up correctly when `dvc pull` downloads files without an error and
+`dvc status` prints *"Data and pipelines are up to date."* You should also now
+see real data in `data/raw/` and `data/processed/` — before `dvc pull` those
+folders only contain small `.dvc` pointer files.
+
+If something failed, see [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## Everyday use
 
+**Activate the virtual environment first, every time.** Nothing below works
+without it, and forgetting is the single most common cause of confusing errors.
+
 ```bash
-source .venv/bin/activate
-dvc pull        # fetch data + models matching the current commit
-dvc repro       # rerun any stage whose code, data or params changed
-dvc push        # upload anything new you produced
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 ```
 
-Always `source .venv/bin/activate` first. The pipeline calls plain `python`, so
-without the venv it will pick up the wrong interpreter and fail.
+### Starting work
 
-Commit the small files that `dvc repro` updates (`dvc.lock`, `metrics/`,
-`reports/`) alongside your code changes, then `dvc push` so teammates can pull
-the matching data.
+Two commands, and you need both. Git brings the code; DVC brings the data those
+commits refer to.
+
+```bash
+git pull
+dvc pull
+```
+
+`git pull` on its own leaves you with new code and old data, which usually looks
+like the pipeline behaving strangely rather than an obvious error.
+
+### Finishing work
+
+```bash
+dvc repro                      # rerun whatever your change affected
+git add -A
+git commit -m "what you changed and why"
+dvc push                       # upload data and models FIRST
+git push                       # then the code that points at them
+```
+
+**Push DVC before Git.** If the code lands on GitHub before the data reaches S3,
+a teammate can pull a commit whose data does not exist yet, and their `dvc pull`
+fails for reasons that have nothing to do with anything they did.
+
+Commit the small files `dvc repro` updates — `dvc.lock`, `metrics/`, `reports/`
+— alongside your code changes. They are how teammates see what your run produced
+without having to rerun it.
 
 ## The pipeline
 
@@ -168,7 +236,13 @@ on macOS and Linux. It is gitignored for that reason.
 | KNIME node caches | DVC | `Student_Risk_DataOps/**/port_*` |
 | Credentials, local DBs | Neither | `.dvc/config.local`, `mlflow.db` |
 
-Bucket and IAM setup lives in [docs/aws-s3-setup.md](docs/aws-s3-setup.md).
+## Documentation
+
+| Guide | When you need it |
+|---|---|
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Something broke. Start here |
+| [docs/aws-s3-setup.md](docs/aws-s3-setup.md) | Getting S3 access, or adding a teammate |
+| [docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) | Building the model comparison in the KNIME GUI |
 
 ## The pre-commit hook
 
