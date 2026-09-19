@@ -13,7 +13,13 @@ git clone https://github.com/colton-warren/student-academic-risk-prediction.git
 cd student-academic-risk-prediction
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+git config core.hooksPath .githooks
 ```
+
+That last line turns on a pre-commit hook that refuses to commit AWS keys.
+Git does not share hooks automatically, so **everyone has to run it in their
+own clone** -- it is one command and it is the thing standing between a typo
+and a leaked key on a public repo.
 
 Then add your own AWS keys for the DVC remote. Ask whoever set up the bucket
 for your personal access key pair -- everyone gets their own, they are not
@@ -120,3 +126,19 @@ on macOS and Linux. It is gitignored for that reason.
 | Credentials, local DBs | Neither | `.dvc/config.local`, `mlflow.db` |
 
 Bucket and IAM setup lives in [docs/aws-s3-setup.md](docs/aws-s3-setup.md).
+
+## The pre-commit hook
+
+`.githooks/pre-commit` blocks a commit when the staged changes contain an AWS
+access key ID, a secret-looking credential value, uncommented credentials in
+`.dvc/config`, or `.dvc/config.local` itself. It reads only what is staged, so
+it does not care what is loose in your working tree.
+
+It is a safety net, not a guarantee. It catches the common accident -- running
+`dvc remote modify` without `--local` -- and it cannot catch everything.
+
+If it stops you on something genuinely harmless, put `pragma: allowlist secret`
+on that line. Reach for `git commit --no-verify` only when you are certain;
+if you need it in order to commit a real credential, the credential is in the
+wrong file.
+
