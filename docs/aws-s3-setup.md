@@ -8,17 +8,31 @@ careful below is not the bill for storage, it is that this GitHub repo is
 seconds. Everything here is aimed at making a leak survivable: keys that are
 scoped to one bucket, and issued per person so one can be revoked alone.
 
+The bucket for this project already exists:
+
+| | |
+|---|---|
+| Bucket | `uc-bana-7075-fall2026-group7-student-academic-risk-prediction` |
+| Region | `us-east-1` |
+| DVC prefix | `dvcstore/` |
+
+Part 1 is recorded for the next person who has to rebuild it, or to add a
+teammate. If you just need access, skip to Part 2.
+
 ## Part 1: bucket and IAM (one person, once)
 
 ### 1. Create the bucket
 
-S3 console -> **Create bucket**. Any unique name; keep **Block all public
-access** switched ON (the default). Note the region you picked.
+S3 console -> **Create bucket**. The name must be unique across all of AWS,
+not just your account. Keep **Block all public access** switched ON (the
+default), leave versioning **Disabled** (DVC content-addresses its files, so
+it never overwrites), and note the region you picked.
 
 ### 2. Create a policy scoped to that bucket
 
-IAM -> **Policies** -> **Create policy** -> **JSON**. Paste this, replacing
-`YOUR-BUCKET-NAME` in both places:
+IAM -> **Policies** -> **Create policy** -> **JSON**. The policy below is the
+one in use; if you are rebuilding under a different bucket, replace the name
+in both places:
 
 ```json
 {
@@ -28,7 +42,7 @@ IAM -> **Policies** -> **Create policy** -> **JSON**. Paste this, replacing
       "Sid": "ListTheBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME"
+      "Resource": "arn:aws:s3:::uc-bana-7075-fall2026-group7-student-academic-risk-prediction"
     },
     {
       "Sid": "ReadWriteObjectsInIt",
@@ -38,7 +52,7 @@ IAM -> **Policies** -> **Create policy** -> **JSON**. Paste this, replacing
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
+      "Resource": "arn:aws:s3:::uc-bana-7075-fall2026-group7-student-academic-risk-prediction/*"
     }
   ]
 }
@@ -72,10 +86,12 @@ history where others can read it later.
 
 ```bash
 dvc remote add -d storage s3://YOUR-BUCKET-NAME/dvcstore
+dvc remote modify storage region YOUR-REGION
 git add .dvc/config && git commit -m "Point DVC at the group S3 bucket"
 ```
 
-Only the bucket URL is committed. No keys.
+Only the bucket URL and region are committed. No keys. This is already done
+for the current bucket, so it is here for the rebuild case.
 
 ### 6. Set a budget alert
 
@@ -92,15 +108,11 @@ dvc remote modify --local storage secret_access_key <your-secret-access-key>
 dvc pull
 ```
 
+The region is already in the committed `.dvc/config`, so you do not set it.
+
 `--local` is the part that matters. It writes to `.dvc/config.local`, which is
 gitignored. Without it, the keys go into `.dvc/config`, which is committed and
 public.
-
-If the bucket is not in your default region, also:
-
-```bash
-dvc remote modify --local storage region <bucket-region>
-```
 
 ### Check you did it right
 
