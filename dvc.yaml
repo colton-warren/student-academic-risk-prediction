@@ -1,34 +1,52 @@
-# The reproducible pipeline. `dvc repro` runs any stage whose deps, params or
-# code changed, and skips the rest. `dvc dag` draws it.
+# The reproducible pipeline.
 #
-# The clean stage is a faithful Python port of the Student_Risk_DataOps KNIME
-# workflow: it reproduces that workflow's output byte for byte, so the pipeline
-# runs on machines without KNIME. The KNIME workflow itself stays versioned in
-# Git as the source of truth for what the cleaning does.
+# Data preparation happens in KNIME, which the team runs by hand -- it is a
+# desktop application and cannot be driven by `dvc repro`. So the prepared CSV
+# is tracked as an input (see data/processed/cleaned_student_data.csv.dvc)
+# rather than generated here, and the pipeline's first job is to check it.
+#
+#   KNIME (manual)  ->  data/processed/cleaned_student_data.csv  (dvc add)
+#                              |
+#                       verify_prep  -- contract checks + drift check
+#                              |
+#                       experiments  -- every model x every feature set
+#
+# After re-running the KNIME workflow:
+#   dvc add data/processed/cleaned_student_data.csv
+#   dvc repro
+#   dvc push
 
 stages:
-  clean:
-    cmd: python src/clean_data.py
+  verify_prep:
+    # Fails the pipeline if the prepared data breaks the contract, or if it no
+    # longer matches what the KNIME workflow's Python port produces.
+    cmd: python src/verify_prep.py
     deps:
+      - src/verify_prep.py
       - src/clean_data.py
+      - data_contract.yaml
       - data/raw/student_data.csv
-    params:
-      - clean
-    outs:
       - data/processed/cleaned_student_data.csv
     metrics:
-      - reports/cleaning_report.json:
+      - reports/prep_verification.json:
           cache: false
 
-  train:
-    cmd: python src/train_multinomial_logistic_regression_model.py
+  experiments:
+    cmd: python src/run_experiments.py
     deps:
-      - src/train_multinomial_logistic_regression_model.py
+      - src/run_experiments.py
+      - src/features.py
       - data/processed/cleaned_student_data.csv
+      - reports/prep_verification.json
     params:
-      - train
+      - experiment
+      - models
     outs:
-      - models/multinomial_logistic_regression.joblib
+      - models
+      # A report for humans, not a metrics file -- DVC cannot parse markdown,
+      # so it is an output rather than a metric.
+      - reports/experiment_comparison.md:
+          cache: false
     metrics:
-      - metrics/train_metrics.json:
+      - metrics/experiment_results.json:
           cache: false

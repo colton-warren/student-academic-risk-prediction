@@ -1,0 +1,10 @@
+{
+  "best_run": "logreg_all_features_v1",
+  "best_recall_focus": 0.7676,
+  "recall_focus.logreg_enrollment_only_v1": 0.588,
+  "recall_focus.forest_enrollment_only_v1": 0.6162,
+  "recall_focus.logreg_through_sem1_v1": 0.7465,
+  "recall_focus.forest_through_sem1_v1": 0.7254,
+  "recall_focus.logreg_all_features_v1": 0.7676,
+  "recall_focus.forest_all_features_v1": 0.7324
+}

@@ -1,17 +1,41 @@
-# Experiment parameters. Change a value here and `dvc repro` reruns only the
-# stages that depend on it. Use `dvc exp run --set-param train.max_iter=2000`
-# to try a variation without editing the file.
+# Experiment parameters. Change a value and `dvc repro` reruns only what
+# depends on it. To try a variation without editing the file:
+#   dvc exp run --set-param models.forest.n_estimators=800
+#   dvc exp show
+# That is also how to do the hyperparameter-tuning objective from the
+# conceptual design: sweep a value, then compare runs.
 
-clean:
-  # Mirrors the KNIME Missing Value (#3) node, which is set to DoNothing for
-  # every column type. Missing cells are reported, never imputed.
-  missing_value_policy: do_nothing
-
-train:
+experiment:
+  # Appended to each MLflow run name, per the naming convention in the
+  # conceptual design (model, then feature set, then trial: _v1, _v2, ...).
+  run_version: v1
   target_column: target
-  # Class whose recall the project cares about most.
+  # The class the project exists to catch. Recall on it picks the best model.
   focus_class: Dropout
   test_size: 0.2
   random_state: 42
-  solver: lbfgs
-  max_iter: 1000
+  # Stratified because the classes are uneven (roughly 50/32/18); an unstratified
+  # split lets the test set's class mix wander, which moves the metrics on its own.
+  stratify: true
+  feature_sets:
+    - enrollment_only
+    - through_sem1
+    - all_features
+
+models:
+  # Hyperparameters named in the conceptual design, so each one is tracked.
+  logreg:
+    # Inverse regularisation strength: smaller means stronger regularisation.
+    C: 1.0
+    # The conceptual design calls this "penalty type". scikit-learn deprecated
+    # the `penalty` argument in 1.8 and removes it in 1.10, so it is expressed
+    # as l1_ratio instead: 0 is ridge (L2), 1 is lasso (L1), between the two is
+    # elastic net. Anything above 0 needs solver: saga -- lbfgs only does L2.
+    l1_ratio: 0
+    solver: lbfgs
+    max_iter: 1000
+  forest:
+    n_estimators: 300
+    max_depth: null
+    min_samples_split: 2
+    max_features: sqrt

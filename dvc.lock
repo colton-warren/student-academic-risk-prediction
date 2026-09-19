@@ -53,3 +53,88 @@ stages:
       hash: md5
       md5: 7a2909c266c0723e3cde51169828c913
       size: 4297
+  verify_prep:
+    cmd: python src/verify_prep.py
+    deps:
+    - path: data/processed/cleaned_student_data.csv
+      hash: md5
+      md5: fa8e869c1b2036558303a53f857ecb77
+      size: 504561
+    - path: data/raw/student_data.csv
+      hash: md5
+      md5: e0e834708f68923f7c9fdbf642f69cca
+      size: 507976
+    - path: data_contract.yaml
+      hash: md5
+      md5: c1254a4923d69d21ebf03354a21656da
+      size: 3358
+    - path: src/clean_data.py
+      hash: md5
+      md5: f55dcc1c5b6565c815a02fab5b5165af
+      size: 3647
+    - path: src/verify_prep.py
+      hash: md5
+      md5: 3036a23d9222f2a420e1a8f5150e91b6
+      size: 6397
+    outs:
+    - path: reports/prep_verification.json
+      hash: md5
+      md5: aa785b5786aa7ba03ca1285a0d14456f
+      size: 347
+  experiments:
+    cmd: python src/run_experiments.py
+    deps:
+    - path: data/processed/cleaned_student_data.csv
+      hash: md5
+      md5: fa8e869c1b2036558303a53f857ecb77
+      size: 504561
+    - path: reports/prep_verification.json
+      hash: md5
+      md5: aa785b5786aa7ba03ca1285a0d14456f
+      size: 347
+    - path: src/features.py
+      hash: md5
+      md5: 82db30b02d4bb6147acb71446cb02172
+      size: 1615
+    - path: src/run_experiments.py
+      hash: md5
+      md5: 11bad07716fbf46dac3d1b135925a877
+      size: 9020
+    params:
+      params.yaml:
+        experiment:
+          run_version: v1
+          target_column: target
+          focus_class: Dropout
+          test_size: 0.2
+          random_state: 42
+          stratify: true
+          feature_sets:
+          - enrollment_only
+          - through_sem1
+          - all_features
+        models:
+          logreg:
+            C: 1.0
+            l1_ratio: 0
+            solver: lbfgs
+            max_iter: 1000
+          forest:
+            n_estimators: 300
+            max_depth:
+            min_samples_split: 2
+            max_features: sqrt
+    outs:
+    - path: metrics/experiment_results.json
+      hash: md5
+      md5: 6b7955ebf3daf2adbc48f93372f87652
+      size: 373
+    - path: models
+      hash: md5
+      md5: 945db90653c3bf680c32bca5833a5b8e.dir
+      size: 127760646
+      nfiles: 6
+    - path: reports/experiment_comparison.md
+      hash: md5
+      md5: 92879b3fc22e43136c3f413eddc00334
+      size: 2130

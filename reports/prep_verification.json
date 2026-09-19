@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "failures": [],
+  "warnings": [],
+  "rows": 4424,
+  "columns": 37,
+  "missing_cells": 0,
+  "duplicate_rows": 0,
+  "target_balance": {
+    "Graduate": 0.4993,
+    "Dropout": 0.3212,
+    "Enrolled": 0.1795
+  },
+  "reproduction": {
+    "status": "match",
+    "detail": "KNIME output matches the Python port byte for byte"
+  }
+}
