@@ -126,6 +126,11 @@ this dataset, but a model that needs them cannot raise the alarm until the year
 is effectively over -- which is too late for the intervention the project is
 built around.
 
+Building the same comparison in KNIME instead? See
+[docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) -- node by node,
+plus the one Python node that logs the results to MLflow. The Python grid then
+serves as a reference to check the KNIME numbers against.
+
 Tune through `params.yaml` rather than by editing the scripts:
 
 ```bash
