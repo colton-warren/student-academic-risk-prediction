@@ -262,3 +262,8 @@ mlflow.db
 mlflow.db-journal
 mlartifacts/
 /models
+
+# Word documents stay out of Git: they are binary, unreviewable in a diff, and
+# the group edits them collaboratively, so every revision would store a fresh
+# copy. They live in reports/ on disk and in the group's shared drive.
+reports/*.docx

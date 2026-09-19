@@ -5,11 +5,12 @@ Group 7: Anisa Longe, Colton Warren, Sahin Lokman, Paul Thaden, Sirisha Brandenb
 
 ## Experiment Objectives
 
-The purpose of our experiments is to determine which modeling approach best
-supports early identification of students at risk of dropping out, where the
-target variable has three outcomes: Dropout, Enrolled, and Graduate. Our first
-objective is to compare a multinomial logistic regression model against a
-random forest classifier, since logistic regression offers interpretable
+The purpose of the project is to harness the power of AI to build an ML system
+for early intervention, identifying and predicting university student dropouts
+using three classifications (dropout, remained enrolled, or graduate). Our
+experiments are designed to determine which modeling approach best supports
+that goal. Our first objective is to compare a multinomial logistic regression
+model against a random forest classifier, since logistic regression offers interpretable
 coefficients that build advisor trust while random forest handles the mixed
 variable types in our dataset and produces feature importance scores. Our
 second objective addresses a constraint we identified while preparing the data.
@@ -22,19 +23,23 @@ three feature sets defined by when the institution would actually possess the
 data: enrollment-only (24 features available at admission), through-semester-1
 (30 features), and all features (36). This produces a six-run grid of two
 models against three feature sets, and it lets us quantify what predictive
-performance we give up in exchange for being able to act in time.
+performance we give up in exchange for being able to act in time. Within each
+of these six configurations we will also tune the hyperparameters listed below,
+to establish how much of any difference between models is attributable to
+configuration rather than to the algorithm itself.
 
 ## Key Components to Track
 
 Every run is logged to MLflow, which records the parameters, metrics, and
 artifacts for each experiment so that results can be reproduced and compared.
-Run names follow the convention `{model}_{feature_set}_{version}`, for example
-`logreg_through_sem1_v1` or `forest_enrollment_only_v2`, with the version
-suffix incremented for each trial and the run description recording what
-changed relative to the previous trial. For training data we log the dataset
+Run names follow the convention `{model}_{feature_set}_{trial}`, for example
+`Logistic_Semester1_v1` or `RandomForest_EnrollmentOnly_v2`, with the trial
+suffix incremented for each run and the run description recording what changed
+relative to the previous trial. The group expects a minimum of two experiment
+trials per configuration before building the MVP. For training data we log the dataset
 version as the MD5 hash tracked by DVC, which ties every result to the exact
-file that produced it, along with the feature set used and the preprocessing
-applied. Our preparation is deliberately conservative: the KNIME workflow reads
+file that produced it, along with the feature set used, the preprocessing
+applied, and the date of the experiment. Our preparation is deliberately conservative: the KNIME workflow reads
 the raw file, removes duplicate rows, and applies a missing-value policy, and
 we verified that the source data contains no duplicate records and no missing
 cells. The preparation stage therefore functions as validation rather than
@@ -123,6 +128,10 @@ comparison remains traceable to it.
 We implemented the tracking described above and executed the full six-run grid.
 The table reports held-out test performance.
 
+These results are deliberately held back from the submitted conceptual design,
+which states only that a first pass has been run and that the results will be
+presented with the MVP. This file is the detailed internal version.
+
 | Model | Feature set | Features | Accuracy | Macro F1 | Recall Dropout | Recall Enrolled | Recall Graduate |
 |---|---|---:|---:|---:|---:|---:|---:|
 | logreg | enrollment_only | 24 | 0.625 | 0.473 | 0.588 | 0.044 | 0.857 |
@@ -182,3 +191,10 @@ to evaluate whether adjusting the decision threshold improves Dropout recall at
 an acceptable precision cost, and to rebuild the comparison inside the KNIME
 workflow so that the modeling remains visible and maintainable for the whole
 team.
+
+## Disclosure
+
+Claude Code was used to "vibe code" a shared pipeline using GitHub, DVC, KNIME
+and MLflow, and aided in uncovering the timing issues using Python's scikit
+libraries. Claude Code also drafted and edited portions of this document's
+text, which the group reviewed and revised.
