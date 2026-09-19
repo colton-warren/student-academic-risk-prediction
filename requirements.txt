@@ -1,0 +1,8 @@
+# Direct dependencies only. Run `pip install -r requirements.txt`.
+dvc[s3]==3.67.1
+mlflow==3.16.1
+scikit-learn==1.9.1
+pandas==3.0.6
+# Imported directly by src/: params loading and model serialisation.
+PyYAML==6.0.3
+joblib==1.6.0

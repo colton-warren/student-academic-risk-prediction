@@ -1,0 +1,171 @@
+# Expected shape of the prepared dataset.
+#
+# Section 5 of the proposal promises validation: required columns and types,
+# missing values, duplicates, unexpected categories, unrealistic ranges, and
+# drift in the target distribution. This file is what those checks compare
+# against, and src/verify_prep.py runs them.
+#
+# The ranges were observed in the reference dataset, so they describe what is
+# normal here rather than what is physically possible. A value outside them is
+# a prompt to look, not proof of corruption.
+#
+# target_balance_tolerance is an absolute proportion: 0.10 means a class may
+# drift ten percentage points before the check complains.
+columns:
+  Marital Status:
+    type: integer
+    min: 1
+    max: 6
+  Application mode:
+    type: integer
+    min: 1
+    max: 57
+  Application order:
+    type: integer
+    min: 0
+    max: 9
+  Course:
+    type: integer
+    min: 33
+    max: 9991
+  Daytime/evening attendance:
+    type: integer
+    min: 0
+    max: 1
+  Previous qualification:
+    type: integer
+    min: 1
+    max: 43
+  Previous qualification (grade):
+    type: number
+    min: 95.0
+    max: 190.0
+  Nacionality:
+    type: integer
+    min: 1
+    max: 109
+  Mother's qualification:
+    type: integer
+    min: 1
+    max: 44
+  Father's qualification:
+    type: integer
+    min: 1
+    max: 44
+  Mother's occupation:
+    type: integer
+    min: 0
+    max: 194
+  Father's occupation:
+    type: integer
+    min: 0
+    max: 195
+  Admission grade:
+    type: number
+    min: 95.0
+    max: 190.0
+  Displaced:
+    type: integer
+    min: 0
+    max: 1
+  Educational special needs:
+    type: integer
+    min: 0
+    max: 1
+  Debtor:
+    type: integer
+    min: 0
+    max: 1
+  Tuition fees up to date:
+    type: integer
+    min: 0
+    max: 1
+  Gender:
+    type: integer
+    min: 0
+    max: 1
+  Scholarship holder:
+    type: integer
+    min: 0
+    max: 1
+  Age at enrollment:
+    type: integer
+    min: 17
+    max: 70
+  International:
+    type: integer
+    min: 0
+    max: 1
+  Curricular units 1st sem (credited):
+    type: integer
+    min: 0
+    max: 20
+  Curricular units 1st sem (enrolled):
+    type: integer
+    min: 0
+    max: 26
+  Curricular units 1st sem (evaluations):
+    type: integer
+    min: 0
+    max: 45
+  Curricular units 1st sem (approved):
+    type: integer
+    min: 0
+    max: 26
+  Curricular units 1st sem (grade):
+    type: number
+    min: 0.0
+    max: 18.875
+  Curricular units 1st sem (without evaluations):
+    type: integer
+    min: 0
+    max: 12
+  Curricular units 2nd sem (credited):
+    type: integer
+    min: 0
+    max: 19
+  Curricular units 2nd sem (enrolled):
+    type: integer
+    min: 0
+    max: 23
+  Curricular units 2nd sem (evaluations):
+    type: integer
+    min: 0
+    max: 33
+  Curricular units 2nd sem (approved):
+    type: integer
+    min: 0
+    max: 20
+  Curricular units 2nd sem (grade):
+    type: number
+    min: 0.0
+    max: 18.5715
+  Curricular units 2nd sem (without evaluations):
+    type: integer
+    min: 0
+    max: 12
+  Unemployment rate:
+    type: number
+    min: 7.6
+    max: 16.2
+  Inflation rate:
+    type: number
+    min: -0.8
+    max: 3.7
+  GDP:
+    type: number
+    min: -4.06
+    max: 3.51
+  target:
+    type: string
+    allowed:
+    - Dropout
+    - Enrolled
+    - Graduate
+row_count:
+  min: 1000
+target_balance:
+  Graduate: 0.4993
+  Dropout: 0.3212
+  Enrolled: 0.1795
+target_balance_tolerance: 0.1

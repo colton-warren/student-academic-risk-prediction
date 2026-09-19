@@ -1,0 +1,52 @@
+# The reproducible pipeline.
+#
+# Data preparation happens in KNIME, which the team runs by hand -- it is a
+# desktop application and cannot be driven by `dvc repro`. So the prepared CSV
+# is tracked as an input (see data/processed/cleaned_student_data.csv.dvc)
+# rather than generated here, and the pipeline's first job is to check it.
+#
+#   KNIME (manual)  ->  data/processed/cleaned_student_data.csv  (dvc add)
+#                              |
+#                       verify_prep  -- contract checks + drift check
+#                              |
+#                       experiments  -- every model x every feature set
+#
+# After re-running the KNIME workflow:
+#   dvc add data/processed/cleaned_student_data.csv
+#   dvc repro
+#   dvc push
+
+stages:
+  verify_prep:
+    # Fails the pipeline if the prepared data breaks the contract, or if it no
+    # longer matches what the KNIME workflow's Python port produces.
+    cmd: python src/verify_prep.py
+    deps:
+      - src/verify_prep.py
+      - src/clean_data.py
+      - data_contract.yaml
+      - data/raw/student_data.csv
+      - data/processed/cleaned_student_data.csv
+    metrics:
+      - reports/prep_verification.json:
+          cache: false
+
+  experiments:
+    cmd: python src/run_experiments.py
+    deps:
+      - src/run_experiments.py
+      - src/features.py
+      - data/processed/cleaned_student_data.csv
+      - reports/prep_verification.json
+    params:
+      - experiment
+      - models
+    outs:
+      - models
+      # A report for humans, not a metrics file -- DVC cannot parse markdown,
+      # so it is an output rather than a metric.
+      - reports/experiment_comparison.md:
+          cache: false
+    metrics:
+      - metrics/experiment_results.json:
+          cache: false

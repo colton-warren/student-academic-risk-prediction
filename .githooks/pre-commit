@@ -1,0 +1,94 @@
+#!/bin/sh
+#
+# Blocks commits that would leak credentials. This repo is public, so an AWS
+# key reaching GitHub is found by scrapers within seconds.
+#
+# Installed by `git config core.hooksPath .githooks` (see README). Checks only
+# what is staged, not your working tree.
+#
+# To let a genuine false positive through, put `pragma: allowlist secret` on
+# the same line. `git commit --no-verify` skips every check -- if you need it
+# to commit real credentials, the credentials are in the wrong file.
+
+set -u
+
+TAB=$(printf '\t')
+findings=$(mktemp) || exit 1
+trap 'rm -f "$findings"' EXIT
+
+# An AWS access key ID: a known IAM resource prefix plus 16 uppercase
+# alphanumerics. Narrow on purpose, so documentation that merely mentions
+# "AKIA" does not trip it.
+KEY_ID='(AKIA|ASIA|AIDA|AROA|AGPA|ANPA|ANVA|APKA|ABIA|ACCA)[A-Z0-9]{16}'
+
+# A secret-looking assignment: a credential-ish name, then a value long enough
+# to be real. Placeholders like <your-secret> never reach 20 characters of
+# secret alphabet, so they pass.
+SECRET_ASSIGN='(secret_access_key|secretaccesskey|aws_secret|session_token|sessiontoken)[^=:]*[=:][[:space:]]*.?[A-Za-z0-9/+=]{20,}'
+
+report() {
+    printf '%s\n' "$1" >> "$findings"
+}
+
+# --- Rule 1: .dvc/config.local must never be committed at all ---------------
+if git diff --cached --name-only --diff-filter=ACM | grep -qx '\.dvc/config\.local'; then
+    report ".dvc/config.local is staged. That file holds your personal DVC
+    credentials and is meant to stay local -- it is listed in .dvc/.gitignore.
+    Unstage it with:  git restore --staged .dvc/config.local"
+fi
+
+# --- Rules 2-4: scan the staged content of each changed text file -----------
+git diff --cached --numstat --diff-filter=ACM | while IFS="$TAB" read -r added _deleted path; do
+    # numstat reports "-" for both counts on binary files; nothing to scan.
+    [ "$added" = "-" ] && continue
+    [ -n "${path:-}" ] || continue
+
+    # The staged blob, which is what would actually be committed -- not the
+    # working-tree copy, which may differ.
+    blob=$(git show ":$path" 2>/dev/null) || continue
+
+    # Drop lines the author explicitly marked as safe.
+    scan=$(printf '%s\n' "$blob" | grep -v 'pragma: allowlist secret')
+
+    # Rule 2: a real AWS access key ID, in any file.
+    hits=$(printf '%s\n' "$scan" | grep -nE "$KEY_ID" | head -3)
+    if [ -n "$hits" ]; then
+        report "$path contains what looks like an AWS access key ID:
+$(printf '%s\n' "$hits" | sed 's/^/      /')"
+    fi
+
+    # Rule 3: a credential assignment carrying a real-looking value.
+    hits=$(printf '%s\n' "$scan" | grep -nEi "$SECRET_ASSIGN" | head -3)
+    if [ -n "$hits" ]; then
+        report "$path contains what looks like a secret value:
+$(printf '%s\n' "$hits" | sed 's/^/      /' | cut -c1-120)"
+    fi
+
+    # Rule 4: .dvc/config is committed and shared, so it may carry the bucket
+    # URL and nothing else. Comments are fine -- it documents the real
+    # commands -- so only uncommented assignments count.
+    if [ "$path" = ".dvc/config" ]; then
+        hits=$(printf '%s\n' "$scan" \
+            | grep -vE '^[[:space:]]*#' \
+            | grep -nEi '^[[:space:]]*(access_key_id|secret_access_key|session_token|password|user)[[:space:]]*=')
+        if [ -n "$hits" ]; then
+            report ".dvc/config has credentials in it. That file is committed to a
+    public repo. Move them with:
+      dvc remote modify --local storage access_key_id <id>
+      dvc remote modify --local storage secret_access_key <secret>
+    which writes to .dvc/config.local instead."
+        fi
+    fi
+done
+
+# --- Verdict ---------------------------------------------------------------
+if [ -s "$findings" ]; then
+    printf '\n  COMMIT BLOCKED -- possible credentials in staged changes\n\n'
+    sed 's/^/  /' "$findings"
+    printf '\n  Nothing has been committed. Fix the above and try again.\n'
+    printf '  If a key was already pushed, revoke it in the AWS console --\n'
+    printf '  deleting the line does not undo a leak. See docs/aws-s3-setup.md.\n\n'
+    exit 1
+fi
+
+exit 0

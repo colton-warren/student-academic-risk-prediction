@@ -226,9 +226,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# KNIME temporary files 
+# KNIME files 
 .metadata/
 knime.log
+Example Workflows/
+Student_Risk_DataOps/.knimeLock
 
 # Python & Environment caches
 .venv/
@@ -243,3 +245,25 @@ mlruns/
 .dvc/cache/
 .dvc/tmp/
 
+#MLFlow database
+mlflow.db
+
+# Mac Finder files
+.DS_Store
+# --- DataOps additions ---
+# KNIME writes these per-machine; node port caches are DVC-tracked instead
+# (see the port_*.dvc files next to each node's settings.xml).
+Student_Risk_DataOps/.savedWithData
+
+# MLflow local tracking. Never commit these: a SQLite tracking DB stores
+# absolute artifact paths, so one committed on Windows breaks every other
+# machine. Use the shared tracking server instead (see README).
+mlflow.db
+mlflow.db-journal
+mlartifacts/
+/models
+
+# Word documents stay out of Git: they are binary, unreviewable in a diff, and
+# the group edits them collaboratively, so every revision would store a fresh
+# copy. They live in reports/ on disk and in the group's shared drive.
+reports/*.docx

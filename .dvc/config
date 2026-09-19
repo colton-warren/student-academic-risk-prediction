@@ -1,0 +1,5 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = s3://uc-bana-7075-fall2026-group7-student-academic-risk-prediction/dvcstore
+    region = us-east-1
