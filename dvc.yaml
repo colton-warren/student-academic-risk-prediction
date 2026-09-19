@@ -1,0 +1,34 @@
+# The reproducible pipeline. `dvc repro` runs any stage whose deps, params or
+# code changed, and skips the rest. `dvc dag` draws it.
+#
+# The clean stage is a faithful Python port of the Student_Risk_DataOps KNIME
+# workflow: it reproduces that workflow's output byte for byte, so the pipeline
+# runs on machines without KNIME. The KNIME workflow itself stays versioned in
+# Git as the source of truth for what the cleaning does.
+
+stages:
+  clean:
+    cmd: python src/clean_data.py
+    deps:
+      - src/clean_data.py
+      - data/raw/student_data.csv
+    params:
+      - clean
+    outs:
+      - data/processed/cleaned_student_data.csv
+    metrics:
+      - reports/cleaning_report.json:
+          cache: false
+
+  train:
+    cmd: python src/train_multinomial_logistic_regression_model.py
+    deps:
+      - src/train_multinomial_logistic_regression_model.py
+      - data/processed/cleaned_student_data.csv
+    params:
+      - train
+    outs:
+      - models/multinomial_logistic_regression.joblib
+    metrics:
+      - metrics/train_metrics.json:
+          cache: false

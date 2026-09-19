@@ -1,0 +1,17 @@
+# Experiment parameters. Change a value here and `dvc repro` reruns only the
+# stages that depend on it. Use `dvc exp run --set-param train.max_iter=2000`
+# to try a variation without editing the file.
+
+clean:
+  # Mirrors the KNIME Missing Value (#3) node, which is set to DoNothing for
+  # every column type. Missing cells are reported, never imputed.
+  missing_value_policy: do_nothing
+
+train:
+  target_column: target
+  # Class whose recall the project cares about most.
+  focus_class: Dropout
+  test_size: 0.2
+  random_state: 42
+  solver: lbfgs
+  max_iter: 1000
