@@ -1,0 +1,9 @@
+# Shared DVC settings. Safe to commit -- no credentials belong in this file.
+#
+# The S3 bucket URL is added once, by whoever sets the bucket up:
+#   dvc remote add -d storage s3://<bucket>/dvcstore
+#
+# Credentials are per-person and NEVER go here. Each teammate runs:
+#   dvc remote modify --local storage access_key_id <their-key-id>
+#   dvc remote modify --local storage secret_access_key <their-secret>
+# which writes to .dvc/config.local, and that file is gitignored.
