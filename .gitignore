@@ -250,3 +250,14 @@ mlflow.db
 
 # Mac Finder files
 .DS_Store
+# --- DataOps additions ---
+# KNIME writes these per-machine; node port caches are DVC-tracked instead
+# (see the port_*.dvc files next to each node's settings.xml).
+Student_Risk_DataOps/.savedWithData
+
+# MLflow local tracking. Never commit these: a SQLite tracking DB stores
+# absolute artifact paths, so one committed on Windows breaks every other
+# machine. Use the shared tracking server instead (see README).
+mlflow.db
+mlflow.db-journal
+mlartifacts/
