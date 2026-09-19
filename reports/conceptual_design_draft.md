@@ -79,13 +79,16 @@ model and feature set; stratification keeps the class proportions stable
 between the training and test sets. Runs are compared in the MLflow UI, where
 the naming convention groups them by model and feature set, and the metrics are
 additionally versioned in Git through DVC so that we can see how results change
-across commits rather than only within a single session. Our success criteria
-are that a model is preferred if it improves Dropout recall without a
-substantial loss in macro F1, and that a model requiring end-of-year data must
-outperform an earlier-available model by a wide margin to justify the loss of
-intervention time. We will also consider the experiment successful if it
-produces a defensible negative result, since establishing that two algorithms
-perform equivalently is itself a finding that informs the design.
+across commits rather than only within a single session. We will consider the
+experiments successful if they establish a baseline for each feature set,
+identify the earliest point in the academic year at which a model performs well
+enough to act on, and document the trade-off between predictive performance and
+intervention time. Within that, a model is preferred if it improves Dropout
+recall without a substantial loss in macro F1, and a model requiring end-of-year
+data must outperform an earlier-available model by a wide margin to justify the
+loss of intervention time. A defensible negative result would also count as
+success, since establishing that two algorithms perform equivalently is itself a
+finding that informs the design.
 
 ## Experiment Design
 
