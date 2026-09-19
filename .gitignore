@@ -226,9 +226,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# KNIME temporary files 
+# KNIME files 
 .metadata/
 knime.log
+Example Workflows/
+Student_Risk_DataOps/.knimeLock
 
 # Python & Environment caches
 .venv/
@@ -243,3 +245,8 @@ mlruns/
 .dvc/cache/
 .dvc/tmp/
 
+#MLFlow database
+mlflow.db
+
+# Mac Finder files
+.DS_Store
