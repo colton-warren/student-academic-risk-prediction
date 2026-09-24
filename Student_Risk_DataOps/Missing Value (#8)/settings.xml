@@ -6,20 +6,7 @@
         <entry key="memory_policy" type="xstring" value="CacheSmallInMemory"/>
     </config>
     <config key="model">
-        <config key="columnSettings">
-            <config key="0">
-                <config key="colNames">
-                    <entry key="array-size" type="xint" value="1"/>
-                    <entry key="0" type="xstring" value="target"/>
-                </config>
-                <config key="settings">
-                    <entry key="factoryID" type="xstring" value="org.knime.base.node.preproc.pmml.missingval.handlers.DoNothingMissingCellHandlerFactory"/>
-                    <config key="settings">
-                        <entry key="@class" type="xstring" isnull="true" value=""/>
-                    </config>
-                </config>
-            </config>
-        </config>
+        <config key="columnSettings"/>
         <config key="dataTypeSettings">
             <config key="org.knime.core.data.def.IntCell">
                 <entry key="factoryID" type="xstring" value="org.knime.base.node.preproc.pmml.missingval.handlers.MedianNumberMissingCellHandlerFactory"/>
@@ -78,6 +65,6 @@
     </config>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" value="a2a397b5-dd06-4b24-af39-20b309a2578f"/>
+        <entry key="file_store_id" type="xstring" value="5b088fe2-96df-4c72-86d2-72caafd401bd"/>
     </config>
 </config>
