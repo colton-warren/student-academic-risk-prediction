@@ -45,7 +45,7 @@
             <config key="upper_bound">
                 <entry key="datacell" type="xstring" value="org.knime.core.data.def.IntCell"/>
                 <config key="org.knime.core.data.def.IntCell">
-                    <entry key="IntCell" type="xint" value="215"/>
+                    <entry key="IntCell" type="xint" value="216"/>
                 </config>
             </config>
         </config>

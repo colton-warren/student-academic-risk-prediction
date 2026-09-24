@@ -70,7 +70,7 @@
             <config key="upper_bound">
                 <entry key="datacell" type="xstring" value="org.knime.core.data.def.IntCell"/>
                 <config key="org.knime.core.data.def.IntCell">
-                    <entry key="IntCell" type="xint" value="128"/>
+                    <entry key="IntCell" type="xint" value="127"/>
                 </config>
             </config>
         </config>

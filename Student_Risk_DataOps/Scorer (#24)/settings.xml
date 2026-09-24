@@ -60,7 +60,7 @@
             <entry key="type" type="xstring" value="variable"/>
             <entry key="name" type="xstring" value="Cohen's kappa"/>
             <entry key="class" type="xstring" value="DOUBLE"/>
-            <entry key="value" type="xdouble" value="0.3795996933342398"/>
+            <entry key="value" type="xdouble" value="0.3798599490979652"/>
         </config>
     </config>
     <config key="internal_node_subsettings">
@@ -108,6 +108,6 @@
     </config>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" value="4da8dc4e-2f7c-4e24-b83a-640b841e84c1"/>
+        <entry key="file_store_id" type="xstring" value="d9324f72-051a-4626-9957-422569cf0006"/>
     </config>
 </config>
