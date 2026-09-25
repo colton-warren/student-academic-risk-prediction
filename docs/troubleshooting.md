@@ -89,6 +89,17 @@ git commit
 
 The same applies to a conflict in a `.dvc` file.
 
+## The KNIME nodes are all grey after pulling
+
+Expected. Git carries the workflow's structure, not its results — node caches
+and trained models are regenerated rather than shared, because they rewrite
+themselves on every run and would otherwise add tens of megabytes per commit.
+
+Open the workflow and **Execute All**. It takes seconds.
+
+If they are grey after *your own* execute, you probably executed without
+saving. KNIME only writes node data to disk on save.
+
 ## Merge conflict in the KNIME workflow
 
 Git cannot merge KNIME workflows — they are XML and binary blobs. Do not try.

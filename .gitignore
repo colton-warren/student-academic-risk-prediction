@@ -267,3 +267,23 @@ mlartifacts/
 # the group edits them collaboratively, so every revision would store a fresh
 # copy. They live in reports/ on disk and in the group's shared drive.
 reports/*.docx
+
+# --- KNIME: regenerable node data ---
+# KNIME rewrites these on every execution, with fresh UUIDs, so Git stores a
+# whole new copy each time rather than a diff -- the repo grew from 17 MB to
+# 60 MB in three commits, mostly trained-forest blobs under filestore/.
+#
+# What stays in Git is the workflow's *structure*: workflow.knime, each node's
+# settings.xml, and workflow.svg (the system diagram). That is enough for a
+# teammate to open the workflow and run it. Everything below is rebuilt by
+# Execute All in seconds.
+#
+# To share a workflow *with* its results, export it as a .knwf
+# (File -> Export KNIME Workflow, include data) and DVC-track that one file
+# rather than committing the caches.
+Student_Risk_DataOps/**/port_*/
+Student_Risk_DataOps/**/internal/
+Student_Risk_DataOps/**/filestore/
+Student_Risk_DataOps/**/drop/
+Student_Risk_DataOps/.knimeLock
+Student_Risk_DataOps/.savedWithData
