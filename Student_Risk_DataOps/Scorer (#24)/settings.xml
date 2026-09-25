@@ -32,50 +32,21 @@
             <entry key="class" type="xstring" value="DOUBLE"/>
             <entry key="value" type="xdouble" value="0.0"/>
         </config>
-        <config key="Variable_5">
-            <entry key="type" type="xstring" value="variable"/>
-            <entry key="name" type="xstring" value="Accuracy"/>
-            <entry key="class" type="xstring" value="DOUBLE"/>
-            <entry key="value" type="xdouble" value="0.6836158192090396"/>
-        </config>
-        <config key="Variable_6">
-            <entry key="type" type="xstring" value="variable"/>
-            <entry key="name" type="xstring" value="Error"/>
-            <entry key="class" type="xstring" value="DOUBLE"/>
-            <entry key="value" type="xdouble" value="0.3163841807909605"/>
-        </config>
-        <config key="Variable_7">
-            <entry key="type" type="xstring" value="variable"/>
-            <entry key="name" type="xstring" value="#Correct"/>
-            <entry key="class" type="xstring" value="INTEGER"/>
-            <entry key="value" type="xint" value="605"/>
-        </config>
-        <config key="Variable_8">
-            <entry key="type" type="xstring" value="variable"/>
-            <entry key="name" type="xstring" value="#False"/>
-            <entry key="class" type="xstring" value="INTEGER"/>
-            <entry key="value" type="xint" value="280"/>
-        </config>
-        <config key="Variable_9">
-            <entry key="type" type="xstring" value="variable"/>
-            <entry key="name" type="xstring" value="Cohen's kappa"/>
-            <entry key="class" type="xstring" value="DOUBLE"/>
-            <entry key="value" type="xdouble" value="0.42621755107427917"/>
-        </config>
     </config>
     <config key="internal_node_subsettings">
         <entry key="memory_policy" type="xstring" value="CacheSmallInMemory"/>
     </config>
     <config key="model">
-        <entry key="first" type="xstring" value="Prediction (target)"/>
-        <entry key="second" type="xstring" value="target"/>
-        <entry key="flowVarPrefix" type="xstring" isnull="true" value=""/>
-        <entry key="sortingReversed" type="xboolean" value="false"/>
+        <entry key="first" type="xstring" value="target"/>
+        <entry key="second" type="xstring" value="Prediction (target)"/>
         <entry key="sortingStrategy" type="xint" value="0"/>
+        <entry key="sortingReversed" type="xboolean" value="false"/>
+        <entry key="flowVarPrefix" type="xstring" isnull="true" value=""/>
         <entry key="ignore.missing.values" type="xboolean" value="true"/>
     </config>
+    <config key="variables"/>
     <entry key="customDescription" type="xstring" isnull="true" value=""/>
-    <entry key="state" type="xstring" value="EXECUTED"/>
+    <entry key="state" type="xstring" value="CONFIGURED"/>
     <entry key="factory" type="xstring" value="org.knime.base.node.mine.scorer.accuracy.AccuracyScorer2NodeFactory"/>
     <entry key="node-name" type="xstring" value="Scorer"/>
     <entry key="node-bundle-name" type="xstring" value="KNIME Base Nodes"/>
@@ -88,26 +59,20 @@
     <entry key="node-feature-version" type="xstring" value="5.12.0.v202606261225"/>
     <config key="factory_settings"/>
     <entry key="name" type="xstring" value="Scorer"/>
-    <entry key="hasContent" type="xboolean" value="true"/>
+    <entry key="hasContent" type="xboolean" value="false"/>
     <entry key="isInactive" type="xboolean" value="false"/>
     <config key="ports">
         <config key="port_1">
             <entry key="index" type="xint" value="1"/>
-            <entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
-            <entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
-            <entry key="port_object_summary" type="xstring" value="Rows: 3, Cols: 3"/>
-            <entry key="port_dir_location" type="xstring" value="port_1"/>
+            <entry key="port_dir_location" type="xstring" isnull="true" value=""/>
         </config>
         <config key="port_2">
             <entry key="index" type="xint" value="2"/>
-            <entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
-            <entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
-            <entry key="port_object_summary" type="xstring" value="Rows: 4, Cols: 11"/>
-            <entry key="port_dir_location" type="xstring" value="port_2"/>
+            <entry key="port_dir_location" type="xstring" isnull="true" value=""/>
         </config>
     </config>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" value="00372f1a-1731-4488-9754-6af750e84ff5"/>
+        <entry key="file_store_id" type="xstring" isnull="true" value=""/>
     </config>
 </config>
