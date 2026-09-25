@@ -49,6 +49,12 @@ MODEL_DIR = "models"
 DEFAULT_TRACKING_URI = "sqlite:///mlflow.db"
 EXPERIMENT = "Student Academic Risk Prediction"
 
+# Every run is registered as a version of one registered model, so the registry
+# shows the whole comparison rather than a single winner, and the alias can move
+# as results change. The KNIME workflow logs into the same experiment with
+# tool=KNIME, which is how the two implementations are told apart in the UI.
+REGISTERED_MODEL = "student-risk-classifier"
+
 # MLflow serialises sklearn models with skops, which refuses to write a tree
 # ensemble's internal node arrays unless they are explicitly trusted: a
 # hand-crafted model file with out-of-range node indices can crash the process
@@ -129,6 +135,7 @@ def main():
 
             with mlflow.start_run(run_name=run_name):
                 mlflow.log_params({
+                    "tool": "python",
                     "model_type": model_name,
                     "feature_set": set_name,
                     "n_features": len(columns),
@@ -139,14 +146,17 @@ def main():
                     **{f"hp_{k}": v for k, v in hyperparams.items()},
                 })
                 mlflow.log_metrics(metrics)
-                mlflow.sklearn.log_model(
+                info = mlflow.sklearn.log_model(
                     estimator,
                     name="model",
                     skops_trusted_types=TRUSTED_TYPES.get(model_name, []),
                 )
+                version = register_version(info.model_uri, run_name, model_name,
+                                           set_name, len(columns), metrics)
 
             runs.append({
                 "run_name": run_name,
+                "registered_version": version,
                 "model": model_name,
                 "feature_set": set_name,
                 "n_features": len(columns),
@@ -163,9 +173,65 @@ def main():
                   f"recall[{focus}] {metrics['recall_focus']:.3f}")
 
     best = max(runs, key=lambda r: r["recall_focus"])
+    promote_champion(best)
     write_reports(runs, best, focus, dataset_version, labels)
     print(f"\nBest by recall[{focus}]: {best['run_name']} ({best['recall_focus']:.3f})")
     return 0
+
+
+def register_version(model_uri, run_name, model_name, set_name, n_features, metrics):
+    """Add this run to the model registry as a new version, documented.
+
+    The assignment asks for versioned models with clear documentation per
+    version, so the description records what the version actually is -- which
+    algorithm, which feature set, and how it scored -- rather than leaving a
+    reader to open the run to find out. Registry availability varies by backend,
+    and a registry outage is no reason to lose a completed training run, so a
+    failure here is reported and stepped over.
+    """
+    try:
+        registered = mlflow.register_model(model_uri=model_uri, name=REGISTERED_MODEL)
+        client = mlflow.tracking.MlflowClient()
+        client.update_model_version(
+            name=REGISTERED_MODEL,
+            version=registered.version,
+            description=(
+                f"{model_name} trained on the {set_name} feature set "
+                f"({n_features} features). Accuracy {metrics['accuracy']:.3f}, "
+                f"macro F1 {metrics['f1_macro']:.3f}, "
+                f"recall on the focus class {metrics['recall_focus']:.3f}. "
+                f"Produced by the Python pipeline as run {run_name}."
+            ),
+        )
+        for key, value in (("tool", "python"), ("model_type", model_name),
+                           ("feature_set", set_name), ("validation_status", "pending")):
+            client.set_model_version_tag(REGISTERED_MODEL, registered.version, key, value)
+        return int(registered.version)
+    except Exception as error:  # noqa: BLE001 - the registry is optional
+        print(f"  (registry unavailable, not versioned: {error})")
+        return None
+
+
+def promote_champion(best):
+    """Point the `champion` alias at the best run, and record why.
+
+    An alias rather than a stage, because a name like `champion` survives the
+    version numbers changing underneath it: anything loading
+    `models:/student-risk-classifier@champion` keeps working across reruns.
+    """
+    if best.get("registered_version") is None:
+        return
+    try:
+        client = mlflow.tracking.MlflowClient()
+        client.set_registered_model_alias(
+            REGISTERED_MODEL, "champion", best["registered_version"]
+        )
+        client.set_model_version_tag(
+            REGISTERED_MODEL, best["registered_version"], "validation_status", "champion"
+        )
+        print(f"champion alias -> version {best['registered_version']} ({best['run_name']})")
+    except Exception as error:  # noqa: BLE001
+        print(f"  (could not set champion alias: {error})")
 
 
 def write_reports(runs, best, focus, dataset_version, labels):

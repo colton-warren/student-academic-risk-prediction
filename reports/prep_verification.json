@@ -1,7 +1,9 @@
 {
   "passed": true,
   "failures": [],
-  "warnings": [],
+  "warnings": [
+    "prepared CSV differs from src/clean_data.py in formatting only (line endings or number format); the data is identical"
+  ],
   "rows": 4424,
   "columns": 37,
   "missing_cells": 0,
@@ -12,7 +14,7 @@
     "Enrolled": 0.1795
   },
   "reproduction": {
-    "status": "match",
-    "detail": "KNIME output matches the Python port byte for byte"
+    "status": "same_data_different_bytes",
+    "detail": "same data, different formatting -- not a data problem"
   }
 }

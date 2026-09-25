@@ -1,6 +1,6 @@
 # Experiment comparison
 
-Dataset version (md5): `fa8e869c1b2036558303a53f857ecb77`  
+Dataset version (md5): `ea7e9f672d8756d5c2a71f6c6ce0dbaf`  
 Primary metric: recall on **Dropout** -- a false negative is a student who needed help and did not get flagged.
 
 | Model | Feature set | Features | Accuracy | Macro F1 | Recall Dropout | Recall Enrolled | Recall Graduate |

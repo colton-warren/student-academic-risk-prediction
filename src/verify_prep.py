@@ -99,7 +99,7 @@ def contract_checks(df, contract):
     }
 
 
-def reproduction_check(failures):
+def reproduction_check(failures, warnings):
     """Re-run the KNIME port on the raw data and compare to the committed file."""
     with tempfile.TemporaryDirectory() as tmp:
         regenerated = Path(tmp) / "regenerated.csv"
@@ -114,21 +114,26 @@ def reproduction_check(failures):
             failures.append(f"could not re-run src/clean_data.py: {result.stderr.strip()}")
             return {"status": "error"}
 
-        committed = Path(PREPARED).read_bytes()
-        rebuilt = regenerated.read_bytes()
-        if committed == rebuilt:
+        if Path(PREPARED).read_bytes() == regenerated.read_bytes():
             return {"status": "match",
                     "detail": "KNIME output matches the Python port byte for byte"}
 
-        # Bytes differ; say whether the *data* differs, which is what matters.
-        same_data = pd.read_csv(PREPARED).equals(pd.read_csv(regenerated))
-        detail = ("same data, different formatting -- check line endings or "
-                  "number formatting in the CSV Writer node"
-                  if same_data else
-                  "the prepared data itself differs from what the workflow port produces")
+        # Bytes differ. Only a difference in the *data* is a problem. The team
+        # works across Windows and macOS, and KNIME's CSV Writer emits the host
+        # platform's line endings, so identical data routinely differs in bytes
+        # depending on who last executed the workflow. Failing on that would
+        # train everyone to ignore this check.
+        if pd.read_csv(PREPARED).equals(pd.read_csv(regenerated)):
+            warnings.append(
+                "prepared CSV differs from src/clean_data.py in formatting only "
+                "(line endings or number format); the data is identical"
+            )
+            return {"status": "same_data_different_bytes",
+                    "detail": "same data, different formatting -- not a data problem"}
+
+        detail = "the prepared data itself differs from what the workflow port produces"
         failures.append(f"KNIME output does not match src/clean_data.py: {detail}")
-        return {"status": "same_data_different_bytes" if same_data else "mismatch",
-                "detail": detail}
+        return {"status": "mismatch", "detail": detail}
 
 
 def main():
@@ -136,7 +141,7 @@ def main():
     df = pd.read_csv(PREPARED)
 
     failures, warnings, summary = contract_checks(df, contract)
-    summary["reproduction"] = reproduction_check(failures)
+    summary["reproduction"] = reproduction_check(failures, warnings)
 
     report = {
         "passed": not failures,

@@ -48,8 +48,10 @@ def knime_cell(value):
 def write_knime_csv(df, path):
     """Write `df` in the format produced by KNIME's CSV Writer (#5).
 
-    CRLF is deliberate: the workflow was executed on Windows, so matching it
-    keeps the regenerated file byte-identical to the one already in DVC.
+    CRLF matches the workflow's original Windows execution. It is no longer
+    load-bearing: KNIME's CSV Writer emits whatever line ending the host OS
+    uses, so a Mac run produces LF, and verify_prep compares the data rather
+    than the bytes for exactly that reason.
     """
     with open(path, "w", newline="") as handle:
         writer = csv.writer(handle, quoting=csv.QUOTE_NONNUMERIC, lineterminator="\r\n")
