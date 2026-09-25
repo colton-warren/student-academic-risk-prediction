@@ -1,0 +1,19 @@
+# Line-ending policy. Without this, behaviour depends on each person's
+# core.autocrlf setting, which differs between the team's Windows machines and
+# macOS, producing phantom diffs and -- worse -- a broken pre-commit hook.
+
+# Store text as LF in the repository; check out whatever the platform prefers.
+* text=auto
+
+# Shell scripts must be LF on disk even on Windows. Git Bash runs the hook
+# through sh, and a CRLF line ending turns "#!/bin/sh" into "#!/bin/sh\r",
+# which fails with "bad interpreter". A silently dead hook is worse than no
+# hook, because this one is what stops an AWS key reaching a public repo.
+.githooks/** text eol=lf
+*.sh text eol=lf
+
+# KNIME writes these with the host platform's line endings. Normalising them
+# keeps a Windows teammate's checkout from showing every workflow file as
+# modified when nothing changed.
+*.knime text
+*.xml text

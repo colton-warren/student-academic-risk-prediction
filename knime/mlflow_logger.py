@@ -83,6 +83,22 @@ def metrics_from_scorer(table):
     return out
 
 
+# A wrong path here does not fail -- SQLite simply creates a new, empty
+# database, the node reports success, and the runs land somewhere nobody else
+# can see. Checking the folder exists turns that silent mistake into a message.
+import os
+_folder = os.path.dirname(TRACKING_DB)
+if not os.path.isdir(_folder):
+    raise ValueError(
+        f"TRACKING_DB points into a folder that does not exist: {_folder}\n"
+        "Set TRACKING_DB to the absolute path of mlflow.db in your own clone of "
+        "the repository, using forward slashes on Windows too, e.g.\n"
+        "  C:/Users/you/student-academic-risk-prediction/mlflow.db"
+    )
+if not os.path.exists(TRACKING_DB):
+    print(f"NOTE: {TRACKING_DB} does not exist yet; a new database will be created. "
+          "If you expected to add to the team's existing runs, check the path.")
+
 mlflow.set_tracking_uri(f"sqlite:///{TRACKING_DB}")
 mlflow.set_experiment(EXPERIMENT)
 

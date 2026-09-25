@@ -113,6 +113,32 @@ git add "Student_Risk_DataOps"
 Then the person whose work was discarded redoes it on top. This is why it is
 worth saying in the group chat before you start editing the workflow.
 
+## On Windows: the pre-commit hook does nothing
+
+Git for Windows converts line endings on checkout by default. If the hook was
+checked out before `.gitattributes` existed, it has Windows line endings, and
+Git Bash fails to run it -- usually silently, sometimes with
+`bad interpreter: /bin/sh^M`. A hook that does not run is worse than no hook,
+because this one is what stops an AWS key reaching a public repo.
+
+Force a fresh copy:
+
+```bash
+rm .githooks/pre-commit
+git checkout .githooks/pre-commit
+git config core.hooksPath .githooks
+```
+
+Check it is live by staging something harmless and committing -- the hook
+prints nothing when it passes, but a deliberate test works: put the text
+AWS's published example key id (it starts `AKIA` and is twenty characters) in a
+scratch file, stage it, and try to commit. The commit should be refused. Delete
+the scratch file afterwards.
+
+Writing that example key into this file would itself be blocked by the hook,
+which is a fair demonstration that it works. A line that genuinely needs to
+contain something key-shaped can carry `pragma: allowlist secret` to pass.
+
 ## The commit was blocked: "possible credentials in staged changes"
 
 The pre-commit hook found something that looks like an AWS key. Read what it
