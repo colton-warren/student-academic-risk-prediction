@@ -265,6 +265,7 @@ on macOS and Linux. It is gitignored for that reason.
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Something broke. Start here |
 | [docs/aws-s3-setup.md](docs/aws-s3-setup.md) | Getting S3 access, or adding a teammate |
 | [docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) | Building the model comparison in the KNIME GUI |
+| [docs/streamlit-proposal.md](docs/streamlit-proposal.md) | Design proposal for an advisor-facing interface (not built) |
 
 ## The pre-commit hook
 
