@@ -39,3 +39,18 @@ models:
     max_depth: null
     min_samples_split: 2
     max_features: sqrt
+
+# Hyperparameters set in the KNIME learner dialogs. KNIME cannot pass node
+# settings to MLflow, so they are recorded here and logged alongside the
+# Scorer results by src/log_knime_runs.py. Keep them in step with the nodes --
+# nothing detects it if they drift.
+knime_models:
+  forest:
+    n_trees: 300
+    max_depth: unlimited
+    min_node_size: 1
+    max_features: sqrt
+  logreg:
+    solver: iteratively_reweighted_least_squares
+    regularization: none
+    preprocessing: z_score_normalizer

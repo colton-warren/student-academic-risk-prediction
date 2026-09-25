@@ -1,5 +1,14 @@
 # KNIME Python Script node -- logs the six experiment runs to MLflow.
 #
+# ALTERNATIVE ROUTE. This needs KNIME's Python Integration extension installed
+# and configured on every machine that opens the workflow, and a workflow
+# containing a node someone cannot run will not execute for them at all.
+#
+# The documented path is instead a CSV Writer on each Scorer plus
+# src/log_knime_runs.py -- native KNIME nodes only, and the Python runs outside
+# KNIME in the project venv. See docs/knime-modelling-guide.md.
+# Use this file only if the extension is already working for the whole team.
+#
 # SETUP: the node needs SIX table input ports. In the node's dialog, add input
 # ports until there are six, then connect the SECOND output (accuracy
 # statistics) of each Scorer in the order listed in RUNS below.
@@ -103,6 +112,7 @@ mlflow.set_tracking_uri(f"sqlite:///{TRACKING_DB}")
 mlflow.set_experiment(EXPERIMENT)
 
 logged = []
+accuracies = {}
 for port, (model, feature_set) in enumerate(RUNS):
     if port >= len(knio.input_tables):
         print(f"SKIPPED port {port} ({model}/{feature_set}): no table connected")
@@ -124,10 +134,31 @@ for port, (model, feature_set) in enumerate(RUNS):
 
     accuracy = metrics.get("accuracy")
     recall = metrics.get("recall_dropout")
+    accuracies[(model, feature_set)] = accuracy
     logged.append(run_name)
     print(f"{run_name:<38} accuracy={accuracy}  recall[Dropout]={recall}")
 
 print(f"\nLogged {len(logged)} runs to {EXPERIMENT}")
+
+# Nothing in a Scorer's output says which branch produced it, so the port order
+# above is the only thing tying a run to its name. Getting it wrong mislabels
+# every run and the logging still "succeeds". Adding features should not lower
+# accuracy, so a violation of that ordering is a strong hint the ports are
+# crossed -- worth a warning rather than silent, confident, wrong results.
+ORDER = ["enrollment_only", "through_sem1", "all_features"]
+suspect = []
+for model in {m for m, _ in RUNS}:
+    seen = [(fs, accuracies[(model, fs)]) for fs in ORDER
+            if (model, fs) in accuracies]
+    for (fs_a, a), (fs_b, b) in zip(seen, seen[1:]):
+        if a is not None and b is not None and b < a - 0.02:
+            suspect.append(f"{model}: {fs_a} scored {a:.3f} but {fs_b} scored {b:.3f}")
+if suspect:
+    print("\nWARNING: accuracy falls as features are added, which usually means")
+    print("the Scorer outputs are connected to the wrong input ports:")
+    for line in suspect:
+        print(f"  {line}")
+    print("Check the port order against the table in docs/knime-modelling-guide.md.")
 
 # Pass the first table through so the node has an output.
 knio.output_tables[0] = knio.input_tables[0]

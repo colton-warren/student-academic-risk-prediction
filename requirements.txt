@@ -6,3 +6,6 @@ pandas==3.0.6
 # Imported directly by src/: params loading and model serialisation.
 PyYAML==6.0.3
 joblib==1.6.0
+# Required by KNIME's Python Script node, which talks to this environment over
+# py4j. Not imported by anything in src/, but the KNIME node fails without it.
+py4j==0.10.9.9

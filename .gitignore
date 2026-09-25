@@ -287,3 +287,4 @@ Student_Risk_DataOps/**/filestore/
 Student_Risk_DataOps/**/drop/
 Student_Risk_DataOps/.knimeLock
 Student_Risk_DataOps/.savedWithData
+reports/knime/

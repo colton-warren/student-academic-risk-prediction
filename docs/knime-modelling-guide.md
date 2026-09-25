@@ -121,76 +121,54 @@ and keeping the canvas legible is the reason for building this in KNIME.
 Feed all six tagged tables into **Concatenate** nodes. Concatenate takes two
 inputs by default; either chain them or add ports via the dialog.
 
-## Step 6: The Python node
+## Step 6: Send the results to MLflow
 
-Add a **Python Script** node after the final Concatenate. One input table, no
-output table needed (or pass the table through, harmless either way).
+Each Scorer's **second output port** (accuracy statistics) goes to its own
+**CSV Writer** -- a node you already use, so nothing new has to be installed.
 
-This is the only Python in the workflow. Paste it and change the two settings
-at the top.
+Six CSV Writers, each pointing at `reports/knime/` with these filenames:
 
-```python
-# Logs each row of the incoming table to MLflow as one experiment run.
-# You should only ever need to edit TRACKING_DB and RUN_VERSION.
+| Scorer | File |
+|---|---|
+| forest, enrollment only | `forest_enrollment_only.csv` |
+| forest, through sem 1 | `forest_through_sem1.csv` |
+| forest, all features | `forest_all_features.csv` |
+| logreg, enrollment only | `logreg_enrollment_only.csv` |
+| logreg, through sem 1 | `logreg_through_sem1.csv` |
+| logreg, all features | `logreg_all_features.csv` |
 
-import knime.scripting.io as knio
-import mlflow
+The **filename is what identifies the run**, so name them exactly as above. Get
+one wrong and that run is mislabelled in MLflow.
 
-# Absolute path to the MLflow database, because KNIME's working directory is
-# not the project folder. Use forward slashes, even on Windows.
-TRACKING_DB = "C:/path/to/student-academic-risk-prediction/mlflow.db"
+In each CSV Writer's dialog:
 
-# Bump this when you rerun after changing something, so runs stay comparable:
-# v1, v2, v3 ...
-RUN_VERSION = "v1"
-EXPERIMENT = "Student Academic Risk Prediction"
+- **Tick "write row ID"**. The row IDs are the class names, and without them
+  nothing can tell which row holds the Dropout recall.
+- Set *if file exists* to **overwrite**, so re-running updates rather than
+  fails.
 
-results = knio.input_tables[0].to_pandas()
+Then, outside KNIME, in a terminal:
 
-# The Scorer's column names vary a little between KNIME versions, so find them
-# case-insensitively rather than assuming. If this raises, print list(results)
-# and check what your Scorer actually produced.
-def column(name):
-    for candidate in results.columns:
-        if candidate.strip().lower() == name.lower():
-            return candidate
-    raise KeyError(f"no column like {name!r}; table has: {list(results.columns)}")
-
-class_column = results.columns[0]      # the per-class row label
-recall_column = column("Recall")
-accuracy_column = column("Accuracy")
-
-mlflow.set_tracking_uri(f"sqlite:///{TRACKING_DB}")
-mlflow.set_experiment(EXPERIMENT)
-
-for (model, feature_set), group in results.groupby(["model", "feature_set"]):
-    dropout = group[group[class_column].astype(str).str.strip() == "Dropout"]
-    accuracy = group[accuracy_column].dropna()
-
-    with mlflow.start_run(run_name=f"knime_{model}_{feature_set}_{RUN_VERSION}"):
-        mlflow.log_params({
-            "model_type": model,
-            "feature_set": feature_set,
-            "tool": "KNIME",
-            "split": "80/20 stratified, seed 42",
-        })
-        metrics = {}
-        if not accuracy.empty:
-            metrics["accuracy"] = float(accuracy.iloc[0])
-        if not dropout.empty:
-            metrics["recall_dropout"] = float(dropout[recall_column].iloc[0])
-        mlflow.log_metrics(metrics)
-        print(f"logged knime_{model}_{feature_set}_{RUN_VERSION}: {metrics}")
-
-knio.output_tables[0] = knio.Table.from_pandas(results)
+```bash
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+python src/log_knime_runs.py
 ```
 
-**Before this runs**, KNIME's Python integration needs an environment with
-`mlflow` installed: *File -> Preferences -> KNIME -> Python*. If the node errors
-with `ModuleNotFoundError: No module named 'mlflow'`, that preference is
-pointing at an environment without it. This is the step most likely to eat an
-evening, so test it with a one-line script (`import mlflow`) before building
-everything else.
+It reads the six CSVs, logs one MLflow run each tagged `tool=KNIME`, and
+attaches the CSV to the run as an artifact. The Python pipeline's runs are
+tagged `tool=python`, so the MLflow UI shows both implementations side by side
+in one experiment.
+
+If two files get swapped, the script notices: accuracy should not fall as
+features are added, and it warns when it does.
+
+### Why not a Python Script node inside KNIME?
+
+That works, and `knime/mlflow_logger.py` does it. But it needs KNIME's Python
+Integration extension installed and pointed at an interpreter with `py4j`,
+`pyarrow`, `pandas` and `mlflow`, on every machine. A workflow containing a
+node a teammate cannot run will not execute for them at all, so that setup cost
+falls on everyone rather than one person. A CSV Writer has no such cost.
 
 ## Checking you got it right
 

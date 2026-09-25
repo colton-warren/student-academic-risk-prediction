@@ -214,10 +214,12 @@ this dataset, but a model that needs them cannot raise the alarm until the year
 is effectively over -- which is too late for the intervention the project is
 built around.
 
-Building the same comparison in KNIME instead? See
-[docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) -- node by node,
-plus the one Python node that logs the results to MLflow. The Python grid then
-serves as a reference to check the KNIME numbers against.
+Building the same comparison in KNIME? See
+[docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) -- node by node.
+Its Scorer results reach MLflow through a CSV Writer on each Scorer plus
+`python src/log_knime_runs.py`, which needs no KNIME extensions. Both sets of
+runs land in one experiment, tagged `tool=KNIME` and `tool=python`, so the two
+implementations can be compared directly.
 
 Tune through `params.yaml` rather than by editing the scripts:
 
