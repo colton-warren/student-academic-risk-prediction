@@ -12,7 +12,7 @@ the venv active, and MLflow at `http://127.0.0.1:5001`.
 
 ---
 
-## 1. Problem and purpose — 1:00 — *Colton*
+## 1. Problem and purpose — 1:00 — *Anisa*
 
 > Universities lose students they could have kept. The warning signs exist in
 > data they already hold — grades, attendance, whether tuition is paid — but
@@ -90,7 +90,7 @@ Run: `python src/verify_prep.py`
 
 ---
 
-## 4. Model development and experiment tracking — 2:30 — *Anisa*
+## 4. Model development and experiment tracking — 2:30 — *Sirisha*
 
 **On screen:** MLflow at `http://127.0.0.1:5001`.
 
@@ -124,7 +124,7 @@ Run: `python src/verify_prep.py`
 
 ---
 
-## 5. Challenges and next steps — 1:30 — *Sirisha*
+## 5. Challenges and next steps — 1:30 — *Colton*
 
 > Three honest problems.
 >
