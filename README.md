@@ -319,3 +319,40 @@ on that line. Reach for `git commit --no-verify` only when you are certain;
 if you need it in order to commit a real credential, the credential is in the
 wrong file.
 
+## Local MacBook Pro machine reproduction and Review: 
+
+I reproduced the project locally on an Intel Mac using GitHub Desktop, KNIME Analytics Platform 5.12.0, and Python 3.12.10.
+
+## Work Completed
+
+Set up the local repository through GitHub Desktop and retrieved the DVC-tracked project files using dvc pull.
+
+Worked through local KNIME setup issues involving dataset paths, CSV reading, and the Domain Calculator node.
+
+Ran the data preparation verification and reviewed the resulting dataset checks.
+
+Reviewed twelve MLflow runs: six KNIME runs and six Python runs, comparing the two models across the three feature sets.
+
+Reviewed registered model versions and the champion alias.
+
+Reviewed the changes associated with Issue #3, submitted my review comment, and manually closed the issue after Anisa's pull request was merged.
+
+## Local Data Verification Results: 
+
+The prepared dataset verification reported: 
+
+### Local Data Verification Results
+
+| Check | Result |
+| --- | --- |
+| Rows | 4,424 |
+| Columns, including the target | 37 |
+| Missing values | 0 |
+| Duplicate rows | 0 |
+| Graduate proportion | 49.93% |
+| Dropout proportion | 32.12% |
+| Enrolled proportion | 17.95% |
+
+
+These results document my local reproduction check. They provide an additional team-member verification of the prepared dataset used for the model comparisons.
+
