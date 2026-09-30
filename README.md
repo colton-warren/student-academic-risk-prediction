@@ -1,6 +1,7 @@
 # student-academic-risk-prediction
 
 Group 7 Student Academic Risk Prediction MVP.
+Colton Warren, Paul Thaden, Anisa Longe, Sahin Lokman, Sirisha Brandenburg
 ## Overview of the Problem & Purpose 
 
 Colleges and universities often have information that may indicate when a student is beginning to struggle. Examples can include academic performance, attendance-related information, financial circumstances, and other student characteristics.
