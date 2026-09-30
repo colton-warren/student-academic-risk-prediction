@@ -1,7 +1,44 @@
 # student-academic-risk-prediction
 
 Group 7 Student Academic Risk Prediction MVP.
+## Overview of the Problem & Purpose 
 
+Colleges and universities often have information that may indicate when a student is beginning to struggle. Examples can include academic performance, attendance-related information, financial circumstances, and other student characteristics.
+
+The challenge is that these warning signs may exist in different systems and may not be reviewed together early enough to support a student before the student drops out or experiences a serious academic setback.
+
+The **Student Academic Risk Prediction** project is a machine learning MVP, or **minimum viable product**, designed to explore whether historical student data can be used to identify patterns associated with three student outcomes:
+
+1*Dropout**
+2**Enrolled**
+3*Graduate**
+
+This project is a prototype. No FERPA or PII was used to build this prototype. 
+
+# Project Objective
+
+The primary objective is to build and compare machine learning models that can classify a student's academic outcome using information available in the dataset.
+
+The project focuses on two machine learning models:
+
+1. **Multinomial Logistic Regression**
+2. **Random Forest**
+
+These models were selected because they provide two useful perspectives.
+
+### Multinomial Logistic Regression
+
+Multinomial Logistic Regression provides an interpretable baseline model. 
+
+### Random Forest
+
+Random Forest can work well with datasets that contain many different types of variables and complex relationships. 
+
+Using both models allows the project team to compare predictive performance with interpretability.
+
+The models allow the project to study those patterns across historical data and compare how different combinations of features relate to the three target outcomes.
+
+## Data Location
 Code, parameters and metrics live in **Git**. Data, models and KNIME node
 caches live in **DVC**, which keeps the big files out of Git and shares them
 through a single remote.
