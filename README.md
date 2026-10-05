@@ -285,6 +285,312 @@ created on one machine points at directories that do not exist on any other --
 the copy previously committed here pointed at `C:\Users\...\mlruns` and crashed
 on macOS and Linux. It is gitignored for that reason.
 
+## Local Prediction Application
+
+The project includes a local prediction application for academic-risk assessment.
+
+The application uses three services:
+
+```text
+MLflow Model Registry
+        |
+        v
+FastAPI Prediction API
+        |
+        v
+Streamlit User Interface
+```
+
+- MLflow stores experiment runs and registered model versions.
+- FastAPI loads the deployed MLflow model and exposes prediction endpoints.
+- Streamlit provides an advisor-facing user interface for batch and single-student predictions.
+
+The deployed API uses the registered MLflow model:
+student-risk-classifier
+
+with the alias:
+early-intervention
+
+This alias should point to the selected Logistic Regression through-semester-1 model.
+Application Features
+The Streamlit interface supports:
+- downloading an Excel prediction template;
+- uploading an Excel file containing multiple students;
+- generating predictions for all students in the file;
+- displaying Dropout, Enrolled, and Graduate probabilities;
+- sorting students by dropout probability;
+- highlighting students above a configurable dropout-risk threshold;
+- downloading prediction results as Excel;
+- generating predictions for a single student;
+- using readable dropdowns instead of numeric category codes; and
+- displaying the active MLflow model version and feature set.
+
+### Running the Local Application
+
+Run all commands from the root of the repository.
+
+You will normally need three terminal windows:
+
+Terminal 1 -> MLflow    -> port 5000
+Terminal 2 -> FastAPI   -> port 8000
+Terminal 3 -> Streamlit -> port 8501
+
+#### 1. Activate the Python Virtual Environment
+##### Windows PowerShell
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.venv\Scripts\Activate.ps1
+```
+
+The execution-policy command is only needed if PowerShell blocks the virtual-environment activation script.
+##### macOS / Linux
+```bash
+source .venv/bin/activate
+```
+
+Install or update dependencies if necessary:
+```bash
+pip install -r requirements.txt
+```
+
+#### 2. Start MLflow
+In the first terminal:
+```powershell
+mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
+```
+
+Open the MLflow interface in a browser:
+http://127.0.0.1:5000
+
+Leave this terminal running.
+Each developer has a local mlflow.db. This file should not be committed to Git.
+If the local MLflow instance does not yet contain the project experiments and registered models, open another terminal, activate the virtual environment, and run the experiments.
+
+##### Windows PowerShell
+```powershell
+$env:MLFLOW_TRACKING_URI="http://127.0.0.1:5000"
+python src/run_experiments.py
+```
+
+##### macOS / Linux
+```bash
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+python src/run_experiments.py
+```
+
+After the experiments complete, verify in MLflow that the registered model exists:
+```text
+student-risk-classifier
+```
+
+The model used by the API should have the alias:
+```text
+early-intervention
+```
+
+#### 3. Start the FastAPI Prediction Service
+Open a second terminal and activate the virtual environment.
+Set the MLflow tracking URI.
+
+##### Windows PowerShell
+```powershell
+$env:MLFLOW_TRACKING_URI="http://127.0.0.1:5000"
+```
+
+##### macOS / Linux
+```bash
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+```
+
+Start FastAPI:
+```bash
+python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
+```
+
+The API is available at:
+http://127.0.0.1:8000
+
+Interactive API documentation is available at:
+http://127.0.0.1:8000/docs
+
+Useful endpoints include:
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Confirms the API is running |
+| `GET /model-info` | Displays the deployed model and feature set |
+| `GET /template` | Downloads the Excel prediction template |
+| `POST /predict` | Generates a prediction for one student |
+| `POST /predict-file` | Generates predictions for an uploaded Excel file |
+
+
+A response of:
+{"detail":"Not Found"}
+
+at:
+http://127.0.0.1:8000/
+
+does not necessarily indicate an error. Use /health, /model-info, or /docs instead.
+Leave this terminal running.
+
+#### 4. Start the Streamlit User Interface
+Open a third terminal and activate the virtual environment.
+From the repository root, run:
+```bash
+python -m streamlit run ui/app.py
+```
+
+Streamlit should open automatically in the browser.
+If it does not, open:
+http://localhost:8501
+
+Batch Predictions
+The Batch Predictions tab allows a user to:
+1. download the Excel input template;
+2. enter one student per row;
+3. upload the completed .xlsx file;
+4. run predictions for all students;
+5. view students ranked by dropout probability;
+6. identify students above the selected risk threshold; and
+7. download the prediction results.
+Student ID is included in the template for identification purposes but is not used as a model feature.
+
+The prediction output includes:
+Student ID
+Predicted Outcome
+Probability Dropout
+Probability Enrolled
+Probability Graduate
+Model Version
+Model Alias
+Feature Set
+
+#### Single-Student Prediction
+The Single Student tab allows a user to manually enter information for one student.
+
+Fields are grouped into:
+- Demographics
+- Application & Academic Background
+- Financial & Student Support
+- Family Background
+- Economic Environment
+- First-Semester Performance
+
+Categorical variables use readable dropdown options instead of the raw numeric category codes used by the dataset.
+
+The Streamlit application converts the selected labels back into the numeric codes expected by the model before sending the request to FastAPI.
+
+The result displays:
+- predicted academic outcome;
+- dropout probability;
+- enrolled probability;
+- graduate probability; and
+- a dropout-risk indicator.
+
+Predictions are intended to support human review and intervention planning and should not be treated as automatic academic decisions.
+
+Required Python Packages for the Prediction Application
+
+Make sure the following packages are included in requirements.txt:
+fastapi
+uvicorn[standard]
+streamlit
+requests
+python-multipart
+openpyxl
+
+Then install them with:
+pip install -r requirements.txt
+
+Stopping the Application
+Each local service can be stopped by returning to its terminal and pressing:
+Ctrl + C
+
+Troubleshooting
+PowerShell will not activate .venv
+Run:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.venv\Scripts\Activate.ps1
+```
+
+##### FastAPI cannot find the model
+Confirm that:
+1. MLflow is running at:
+http://127.0.0.1:5000
+
+2. MLFLOW_TRACKING_URI is set in the FastAPI terminal.
+3. The registered model exists:
+student-risk-classifier
+
+4. The model has the alias:
+early-intervention
+
+##### FastAPI returns HTTP 422
+The submitted student data is missing one or more features required by the deployed model.
+Check the required features at:
+http://127.0.0.1:8000/model-info
+
+or download a new template from:
+http://127.0.0.1:8000/template
+
+##### Streamlit cannot connect to FastAPI
+Verify that FastAPI is still running by opening:
+http://127.0.0.1:8000/health
+
+##### Streamlit cannot import category_mappings
+The files should be structured like this:
+student-academic-risk-prediction/
+|
+|-- src/
+|   |-- api.py
+|
+|-- ui/
+|   |-- app.py
+|   |-- category_mappings.py
+|
+|-- requirements.txt
+|-- data_contract.yaml
+
+Inside ui/app.py, use:
+```python
+from category_mappings import CATEGORY_OPTIONS
+```
+
+Application Architecture
+                     MODEL DEVELOPMENT
+
+        KNIME Experiments        Python Experiments
+                |                       |
+                +----------+------------+
+                           |
+                           v
+                        MLflow
+                 Experiment Tracking
+                  + Model Registry
+                           |
+                           v
+             student-risk-classifier
+               @ early-intervention
+                           |
+                           v
+
+                     MODEL SERVING
+
+                     FastAPI API
+                  http://127.0.0.1:8000
+                           |
+                 +---------+---------+
+                 |                   |
+                 v                   v
+          Single Prediction    Batch Prediction
+                 |                   |
+                 +---------+---------+
+                           |
+                           v
+
+                    Streamlit UI
+                 http://localhost:8501
+
 ## What goes where
 
 | Kind of file | Tracked by | Example |
@@ -297,6 +603,8 @@ on macOS and Linux. It is gitignored for that reason.
 | Datasets and models | DVC | `data/`, `models/` |
 | KNIME node caches | Neither | regenerated by Execute All |
 | Credentials, local DBs | Neither | `.dvc/config.local`, `mlflow.db` |
+| Prediction API | Git | `src/api.py` |
+| Streamlit UI | Git | `ui/` |
 
 ## Documentation
 
@@ -305,7 +613,7 @@ on macOS and Linux. It is gitignored for that reason.
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Something broke. Start here |
 | [docs/aws-s3-setup.md](docs/aws-s3-setup.md) | Getting S3 access, or adding a teammate |
 | [docs/knime-modelling-guide.md](docs/knime-modelling-guide.md) | Building the model comparison in the KNIME GUI |
-| [docs/streamlit-proposal.md](docs/streamlit-proposal.md) | Design proposal for an advisor-facing interface (not built) |
+| [docs/streamlit-proposal.md](docs/streamlit-proposal.md) | Original design notes for the advisor-facing Streamlit interface |
 
 ## The pre-commit hook
 
