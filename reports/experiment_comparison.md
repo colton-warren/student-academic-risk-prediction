@@ -1,16 +1,16 @@
 # Experiment comparison
 
-Dataset version (md5): `7cf4df354c28983ba4ae5c2587e9e8c3`  
+Dataset version (md5): `ea7e9f672d8756d5c2a71f6c6ce0dbaf`  
 Primary metric: recall on **Dropout** -- a false negative is a student who needed help and did not get flagged.
 
 | Model | Feature set | Features | Accuracy | Macro F1 | Recall Dropout | Recall Enrolled | Recall Graduate |
 |---|---|---:|---:|---:|---:|---:|---:|
 | logreg | enrollment_only | 24 | 0.625 | 0.473 | 0.588 | 0.044 | 0.857 |
-| forest | enrollment_only | 24 | 0.629 | 0.517 | 0.616 | 0.138 | 0.814 |
+| forest | enrollment_only | 24 | 0.627 | 0.519 | 0.616 | 0.145 | 0.808 |
 | logreg | through_sem1 | 30 | 0.734 | 0.612 | 0.746 | 0.176 | 0.928 |
-| forest | through_sem1 | 30 | 0.728 | 0.618 | 0.725 | 0.214 | 0.914 |
+| forest | through_sem1 | 30 | 0.729 | 0.614 | 0.725 | 0.201 | 0.921 |
 | logreg | all_features | 36 | 0.768 | 0.683 | 0.768 | 0.333 | 0.925 |
-| forest | all_features | 36 | 0.768 | 0.691 | 0.732 | 0.371 | 0.934 |
+| forest | all_features | 36 | 0.765 | 0.687 | 0.732 | 0.365 | 0.930 |
 
 ## Confusion matrices
 
@@ -27,8 +27,8 @@ Primary metric: recall on **Dropout** -- a false negative is a student who neede
 | | Dropout | Enrolled | Graduate |
 |---|---:|---:|---:|
 | **Dropout** | 175 | 16 | 93 |
-| **Enrolled** | 42 | 22 | 95 |
-| **Graduate** | 60 | 22 | 360 |
+| **Enrolled** | 38 | 23 | 98 |
+| **Graduate** | 61 | 24 | 357 |
 
 **logreg_through_sem1_v1** (rows = actual, columns = predicted)
 
@@ -43,8 +43,8 @@ Primary metric: recall on **Dropout** -- a false negative is a student who neede
 | | Dropout | Enrolled | Graduate |
 |---|---:|---:|---:|
 | **Dropout** | 206 | 26 | 52 |
-| **Enrolled** | 51 | 34 | 74 |
-| **Graduate** | 20 | 18 | 404 |
+| **Enrolled** | 53 | 32 | 74 |
+| **Graduate** | 19 | 16 | 407 |
 
 **logreg_all_features_v1** (rows = actual, columns = predicted)
 
@@ -58,7 +58,7 @@ Primary metric: recall on **Dropout** -- a false negative is a student who neede
 
 | | Dropout | Enrolled | Graduate |
 |---|---:|---:|---:|
-| **Dropout** | 208 | 27 | 49 |
-| **Enrolled** | 36 | 59 | 64 |
-| **Graduate** | 10 | 19 | 413 |
+| **Dropout** | 208 | 28 | 48 |
+| **Enrolled** | 36 | 58 | 65 |
+| **Graduate** | 10 | 21 | 411 |
 

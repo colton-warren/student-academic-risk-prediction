@@ -138,3 +138,73 @@ stages:
       hash: md5
       md5: 31dd6eba71955f293e49f72e3072daef
       size: 2130
+  tuning:
+    cmd: python src/tune.py
+    deps:
+    - path: data/processed/cleaned_student_data.csv
+      hash: md5
+      md5: ea7e9f672d8756d5c2a71f6c6ce0dbaf
+      size: 739032
+    - path: reports/prep_verification.json
+      hash: md5
+      md5: 2a1acb68b87518e8df1795a098110139
+      size: 497
+    - path: src/features.py
+      hash: md5
+      md5: 82db30b02d4bb6147acb71446cb02172
+      size: 1615
+    - path: src/run_experiments.py
+      hash: md5
+      md5: 57d91d760a0d6f16e4d09b4cd3f1c868
+      size: 12277
+    - path: src/tune.py
+      hash: md5
+      md5: 6e4a9e75092d7af963d4d233988b4709
+      size: 16975
+    params:
+      params.yaml:
+        experiment:
+          run_version: v1
+          target_column: target
+          focus_class: Dropout
+          test_size: 0.2
+          random_state: 42
+          stratify: true
+          feature_sets:
+          - enrollment_only
+          - through_sem1
+          - all_features
+        models:
+          logreg:
+            C: 1.0
+            l1_ratio: 0
+            solver: lbfgs
+            max_iter: 1000
+          forest:
+            n_estimators: 300
+            max_depth:
+            min_samples_split: 2
+            max_features: sqrt
+        tuning:
+          run_version: v2
+          cv_folds: 5
+          f1_tolerance: 0.02
+          min_precision: 0.7
+    outs:
+    - path: metrics/tuning_results.json
+      hash: md5
+      md5: 564301c07e9601bb5a85e740c02afc45
+      size: 712
+    - path: models_tuned
+      hash: md5
+      md5: 2c9f3c3fdb0cfb1fa072bc57804102ac.dir
+      size: 102158310
+      nfiles: 6
+    - path: reports/tuning_report.md
+      hash: md5
+      md5: 3302f991c30e1ee74bce4101536eb52c
+      size: 2731
+    - path: reports/tuning_threshold_sweep.csv
+      hash: md5
+      md5: a1dd517601872aeb7372af08014f5ede
+      size: 18100

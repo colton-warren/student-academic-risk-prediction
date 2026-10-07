@@ -1,0 +1,14 @@
+{
+  "recall_focus.logreg_enrollment_only_v2_tuned": 0.493,
+  "delta_recall_focus.logreg_enrollment_only_v2_tuned": -0.0951,
+  "recall_focus.forest_enrollment_only_v2_tuned": 0.5599,
+  "delta_recall_focus.forest_enrollment_only_v2_tuned": -0.0563,
+  "recall_focus.logreg_through_sem1_v2_tuned": 0.8134,
+  "delta_recall_focus.logreg_through_sem1_v2_tuned": 0.0669,
+  "recall_focus.forest_through_sem1_v2_tuned": 0.8099,
+  "delta_recall_focus.forest_through_sem1_v2_tuned": 0.0845,
+  "recall_focus.logreg_all_features_v2_tuned": 0.8451,
+  "delta_recall_focus.logreg_all_features_v2_tuned": 0.0775,
+  "recall_focus.forest_all_features_v2_tuned": 0.8345,
+  "delta_recall_focus.forest_all_features_v2_tuned": 0.1021
+}

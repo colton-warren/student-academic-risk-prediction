@@ -54,3 +54,17 @@ knime_models:
     solver: iteratively_reweighted_least_squares
     regularization: none
     preprocessing: z_score_normalizer
+
+# Settings for src/tune.py. Selection happens by cross-validation on the training
+# rows only; the test set is scored once, afterwards.
+tuning:
+  run_version: v2
+  cv_folds: 5
+  # A tuned configuration is eligible only if its cross-validated macro F1 is
+  # within this much of the baseline's. Stops the search "winning" by flagging
+  # almost every student as Dropout.
+  f1_tolerance: 0.02
+  # Floor on Dropout precision when choosing the decision threshold, measured
+  # on out-of-fold predictions. Advisors have limited time; a flood of false
+  # alarms means the list stops being used. An assumption, not a measured need.
+  min_precision: 0.70

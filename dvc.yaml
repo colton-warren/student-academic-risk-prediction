@@ -50,3 +50,27 @@ stages:
     metrics:
       - metrics/experiment_results.json:
           cache: false
+
+  tuning:
+    # Cross-validated hyperparameter and threshold search. Tuned models go to
+    # models_tuned/ and are registered as new MLflow versions; no alias moves.
+    cmd: python src/tune.py
+    deps:
+      - src/tune.py
+      - src/run_experiments.py
+      - src/features.py
+      - data/processed/cleaned_student_data.csv
+      - reports/prep_verification.json
+    params:
+      - experiment
+      - models
+      - tuning
+    outs:
+      - models_tuned
+      - reports/tuning_report.md:
+          cache: false
+      - reports/tuning_threshold_sweep.csv:
+          cache: false
+    metrics:
+      - metrics/tuning_results.json:
+          cache: false
